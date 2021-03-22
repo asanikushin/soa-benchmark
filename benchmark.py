@@ -70,6 +70,7 @@ def deserialize(data):
 setup_pickle = '%s ; src = pickle.dumps(d, 2)' % message
 setup_json = '%s ; src = json.dumps(d)' % message
 setup_xml = '%s ; src = dict2xml(d, wrap="all")' % message
+setup_message = '%s ; src = msgpack.packb(d, use_bin_type=True)' % message
 setup_avro = f"{avro_helpers}\n{message}\n{avro_scheme}\nsrc = serialize(scheme, d)"
 setup_yaml = f"{yaml_helpers}\n{message}\nsrc = serialize(d)"
 
@@ -77,6 +78,8 @@ tests = [
     # (title, setup, enc_test, dec_test)
     ('pickle (native serialization)', 'import pickle; %s' % setup_pickle, 'pickle.dumps(d, 2)', 'pickle.loads(src)'),
     ('json', 'import json; %s' % setup_json, 'json.dumps(d)', 'json.loads(src)'),
+    ('message', 'import msgpack; %s' % setup_message, 'msgpack.packb(d, use_bin_type=True)',
+     'msgpack.unpackb(src, raw=False)'),
     ('xml', 'from dict2xml import dict2xml; from lxml import objectify; %s ' % setup_xml, 'dict2xml(d, wrap="all")',
      'objectify.fromstring(src)'),
     ('avro', setup_avro, 'serialize(scheme, d)', 'deserialize(scheme, src)'),
